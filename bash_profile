@@ -2,7 +2,7 @@
 # ======================
 
   # if you install git via homebrew, or install the bash autocompletion via homebrew, you get __git_ps1 which you can use in the PS1
-  # to display the git branch.  it's supposedly a bit faster and cleaner than manually parsing through sed. i dont' know if you care 
+  # to display the git branch.  it's supposedly a bit faster and cleaner than manually parsing through sed. i dont' know if you care
   # enough to change it
 
   # This function is called in your prompt to output your active git branch.
@@ -12,14 +12,22 @@
 
   # This function builds your prompt. It is called below
   function prompt {
+    # Define the prompt character
+    local   CHAR="♥"
+
     # Define some local colors
-    local         RED="\[\033[0;31m\]" # This syntax is some weird bash color thing I never
-    local   LIGHT_RED="\[\033[1;31m\]" # really understood
-    local        CHAR="♥"
+    local   RED="\[\e[0;31m\]"
+    local   BLUE="\[\e[0;34m\]"
+    local   GREEN="\[\e[0;32m\]"
+    local   GRAY_TEXT_BLUE_BACKGROUND="\[\e[37;44;1m\]"
+
+    # Define a variable to reset the text color
+    local   RESET="\[\e[0m\]"
+
     # ♥ ☆ - Keeping some cool ASCII Characters for reference
 
     # Here is where we actually export the PS1 Variable which stores the text for your prompt
-    export PS1="\[\e]2;\u@\h\a[\[\e[37;44;1m\]\t\[\e[0m\]]$RED\$(parse_git_branch) \[\e[32m\]\W\[\e[0m\]\n\[\e[0;31m\]$CHAR \[\e[0m\]"
+    export PS1="\[\e]2;\u@\h\a[$GRAY_TEXT_BLUE_BACKGROUND\t$RESET]$RED\$(parse_git_branch) $GREEN\W\n$RED $CHAR $RESET"
       PS2='> '
       PS4='+ '
     }
@@ -33,6 +41,11 @@
   # If you break your prompt, just delete the last thing you did.
   # And that's why it's good to keep your dotfiles in git too.
 
+  # A handy function to open your bash profile from any directory
+  function bp {
+    $EDITOR ~/.bash_profile
+  }
+
 # Environment Variables
 # =====================
   # Library Paths
@@ -44,9 +57,13 @@
     # Node Path from Homebrew I believe
     export NODE_PATH="/usr/local/lib/node_modules:$NODE_PATH"
 
-    # Those NODE & Python Paths won't break anything even if you
-    # don't have NODE or Python installed. Eventually you will and
-    # then you don't have to update your bash_profile
+    # NVM Path
+    export NVM_DIR="$HOME/.nvm"
+    # NVM Bash Completion
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+    # Pyton PATH
+    export PATH=/usr/local/share/python:$PATH
 
   # Configurations
 
@@ -57,11 +74,14 @@
     # Editors
     # Tells your shell that when a program requires various editors, use sublime.
     # The -w flag tells your shell to wait until sublime exits
-    export VISUAL="subl -w"
-    export SVN_EDITOR="subl -w"
-    export GIT_EDITOR="subl -w"
-    export EDITOR="subl -w"
+    export VISUAL="atom"
+    export SVN_EDITOR="atom"
+    export GIT_EDITOR="atom"
+    export EDITOR="atom"
 
+    # Version
+    # What version of the Flatiron School bash profile this is
+    export FLATIRON_VERSION='1.1.1'
   # Paths
 
     # The USR_PATHS variable will just store all relevant /usr paths for easier usage
@@ -87,7 +107,7 @@
     # Read http://blog.seldomatt.com/blog/2012/10/08/bash-and-the-one-true-path/ for more on that.
     export PATH="$USR_PATHS:$PATH"
 
-    # If you go into your shell and type: $PATH you will see the output of your current path.
+    # If you go into your shell and type: echo $PATH you will see the output of your current path.
     # For example, mine is:
     # /Users/avi/.rvm/gems/ruby-1.9.3-p392/bin:/Users/avi/.rvm/gems/ruby-1.9.3-p392@global/bin:/Users/avi/.rvm/rubies/ruby-1.9.3-p392/bin:/Users/avi/.rvm/bin:/usr/local:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/local/mysql/bin:/usr/local/share/python:/bin:/usr/sbin:/sbin:
 
@@ -102,6 +122,10 @@
 #      desktop subfolder
 function desktop {
   cd /Users/$USER/Desktop/$@
+}
+
+function macdown {
+  open -a "Macdown" $1
 }
 
 # A function to easily grep for a matching process
@@ -145,7 +169,7 @@ function extract () {
   alias gst="git status"
   alias gl="git pull"
   alias gp="git push"
-  alias gd="git diff | mate"
+  alias gd="git diff | subl"
   alias gc="git commit -v"
   alias gca="git commit -v -a"
   alias gb="git branch"
@@ -155,18 +179,25 @@ function extract () {
 
 
 # Case-Insensitive Auto Completion
-  bind "set completion-ignore-case on" 
+bind "set completion-ignore-case on"
+
+# Postgres
+export PATH=/Applications/Postgres.app/Contents/Versions/latest/bin:$PATH
+
+# PHP Composer
+
+export PATH=$HOME/.composer/vendor/bin:$PATH
+
+# Git Bash Completion
+# Will activate bash git completion if installed
+if [ -f $(brew --prefix)/etc/bash_completion ]; then
+    . $(brew --prefix)/etc/bash_completion
+fi
 
 # Final Configurations and Plugins
 # =====================
-  # Git Bash Completion
-  # Will activate bash git completion if installed
   # via homebrew
-  if [ -f `brew --prefix`/etc/bash_completion ]; then
-    . `brew --prefix`/etc/bash_completion
-  fi
-
   # RVM
   # Mandatory loading of RVM into the shell
   # This must be the last line of your bash_profile always
-  [[ -s "/Users/$USER/.rvm/scripts/rvm" ]] && source "/Users/$USER/.rvm/scripts/rvm"  # This loads RVM into a shell session.
+[[ -s "/Users/$USER/.rvm/scripts/rvm" ]] && source "/Users/$USER/.rvm/scripts/rvm"  # This loads RVM into a shell session.
